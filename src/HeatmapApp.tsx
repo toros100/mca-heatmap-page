@@ -6,20 +6,35 @@ import { filterRange } from "./util.ts";
 import { useWebkitDirectory } from "./useWebkitDirectory.ts";
 import ProgressThing from "./ProgressThing.tsx";
 import { useWasm } from "./useWasm.ts";
+import PalettePicker from "./PalettePicker.tsx";
 
 type Progress = {
   completed: number;
   total: number;
 };
 
+// a bit brittle, should just query current/default palette from WASM
+const DEFAULT_PALETTE = [
+  "#14001E",
+  "#1E0997",
+  "#AC00D9",
+  "#D90000",
+  "#D9A600",
+  "#FFFFFF",
+];
+
 function HeatmapApp() {
   const { browse, mcaFiles } = useWebkitDirectory();
   const { renderer, workerPool } = useWasm();
+
+  const [palette, setPalette] = useState(DEFAULT_PALETTE);
 
   const [numFiles, setNumFiles] = useState<number>(0);
 
   const [filteredFiles, setFilteredFiles] = useState<McaFile[]>([]);
   const processedFiles = useRef<McaFile[]>([]);
+
+  const [editingPalette, setEditingPalette] = useState(false);
 
   const [processing, setProcessing] = useState<boolean>(false);
   const [progress, setProgress] = useState<Progress>({
@@ -40,6 +55,13 @@ function HeatmapApp() {
 
   const imgRef = useRef<HTMLImageElement | null>(null);
   const urlRef = useRef<string | null>(null);
+
+  function processPalette(pal: string[]) {
+    // todo validate
+    const str = pal.map((hex) => hex.substring(1)).join(":");
+    console.log("palette string", str);
+    return str;
+  }
 
   useEffect(() => {
     const minX = Math.min(...mcaFiles.map((m) => m.regionX));
@@ -156,6 +178,25 @@ function HeatmapApp() {
     renderer.reset();
   }, [mcaFiles]);
 
+  function trySetPalette(pal: string[]) {
+    const str = processPalette(pal);
+    try {
+      renderer.set_palette(str);
+      setPalette(pal);
+    } catch (e) {
+      console.error("failed to save palette", e);
+      alert("failed to save palette" + (e as Error).message);
+    } finally {
+      setEditingPalette(false);
+    }
+  }
+
+  function resetPalette() {
+    renderer.reset_palette();
+    setPalette(DEFAULT_PALETTE);
+    setEditingPalette(false);
+  }
+
   return (
     <>
       {
@@ -197,9 +238,26 @@ function HeatmapApp() {
                     ? "Render " + String(filteredFiles.length) + " regions"
                     : "No regions found"}{" "}
                 </button>
+                <button
+                  className={"btn"}
+                  disabled={editingPalette}
+                  onClick={() => setEditingPalette(true)}
+                >
+                  Edit palette
+                </button>
+                <button className={"btn"} onClick={resetPalette}>
+                  Reset palette
+                </button>
               </div>
             )}
           </div>
+          {editingPalette && (
+            <PalettePicker
+              currentPalette={palette}
+              onSavePalette={trySetPalette}
+              cancel={() => setEditingPalette(false)}
+            ></PalettePicker>
+          )}
         </div>
       }
       {processing && (
