@@ -1,0 +1,49 @@
+@reference "tailwindcss";
+
+@layer utilities {
+  button.btn {
+    @apply bg-neutral-900 px-4 py-2 m-2 border-1 border-neutral-700 rounded-md;
+  }
+
+  button.btn:disabled {
+    @apply cursor-not-allowed text-gray-500;
+  }
+
+  button.btn:hover:enabled {
+    @apply border-neutral-500 cursor-pointer;
+  }
+
+  button.btn:focus {
+    @apply border-neutral-400;
+  }
+}
+
+@layer components {
+  button.spinner-btn {
+    @apply w-10 h-10 bg-neutral-900 text-xl border-1 border-neutral-700 text-white flex items-center justify-center;
+  }
+  button.spinner-btn:enabled:hover {
+    @apply border-neutral-500 cursor-pointer;
+  }
+  button.spinner-btn:disabled {
+    @apply text-gray-500;
+  }
+  button.spinner-btn-l {
+    @apply rounded-bl-md rounded-tl-md;
+  }
+  button.spinner-btn-r {
+    @apply rounded-br-md rounded-tr-md;
+  }
+  input.spinner-input {
+    @apply h-10 w-14 bg-neutral-900 text-center border-1 border-neutral-700;
+  }
+  input.spinner-input:focus {
+    @apply border-neutral-500 ring-0;
+  }
+}
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+}

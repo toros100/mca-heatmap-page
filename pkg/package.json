@@ -1,0 +1,15 @@
+{
+  "name": "mca-heatmap",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "mca_heatmap_bg.wasm",
+    "mca_heatmap.js",
+    "mca_heatmap.d.ts"
+  ],
+  "main": "mca_heatmap.js",
+  "types": "mca_heatmap.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
